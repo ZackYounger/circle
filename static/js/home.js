@@ -1,6 +1,9 @@
 let canvas;
 let ctx;
 let circleRadius = 400
+let sqrtCircleRadius = Math.sqrt(circleRadius)
+let circleWidth = 5
+let gravity = 0.2
 
 window.onload  = function () {
     canvas = document.getElementById('canvas');
@@ -14,30 +17,92 @@ window.onload  = function () {
         console.log("Canvas is not supported!!")
     }
 
-    //Draw Circle
-    detail = 1000
-    for (i=0;i<=detail;i++) {
-        angle = i/detail * Math.PI/2
+    b = new Ball([canvas.width/2, canvas.height/2+350])
 
-        color = HSVtoRGB(i/detail, 1, 1);
+    setInterval(function() {
+        ctx.fillStyle = "rgba(0, 0, 0, 1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        hue = 1
+            //Draw Circle
+        detail = 1000
+        for (i=0;i<=detail;i++) {
+            angle = i / detail * Math.PI / 2
 
-        strColor = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${hue})`;
+            color = HSVtoRGB(i / detail, 1, 1);
 
-        point = [canvas.width/2 + Math.cos(angle) * circleRadius,
-                 canvas.height/2 + Math.sin(angle) * circleRadius]
+            hue = 1
 
-        drawCircle(ctx, point[0], point[1], 10, strColor, false, 0)
-        drawCircle(ctx, canvas.width - point[0], point[1], 10, strColor, false, 0)
+            strColor = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${hue})`;
 
+            point = [canvas.width / 2 + Math.cos(angle) * circleRadius,
+                canvas.height / 2 + Math.sin(angle) * circleRadius]
+
+            drawCircle(ctx, point[0], point[1], circleWidth, strColor, false, 0)
+            drawCircle(ctx, canvas.width - point[0], point[1], circleWidth, strColor, false, 0)
+        }
+
+        b.update()
+        drawLine(ctx, [100,100], [200,300], 'rgba(255, 255, 255, 1)', true, 10)
+    }, 1000/6);
+};
+
+let tAngle, nAngle, speed, newAngle, d
+class Ball{
+    constructor(pos) {
+        this.pos = pos
+        this.vel = [0, 0]
+        this.acc = [0, gravity]
+        this.radius = 10
     }
 
-};
+    update() {
+        this.pos = addVec( this.pos, this.vel )
+        this.vel = addVec( this.vel, this.acc )
+
+        if (Math.sqrt((canvas.width/2-this.pos[0])**2 + (canvas.height/2-this.pos[1])**2) + this.radius + circleWidth > circleRadius) {
+            this.vel[1] *= -1
+            nAngle = Math.tan( (canvas.width/2-this.pos[0]) / (canvas.height/2-this.pos[1]) )
+            tAngle = Math.tan( this.vel[0] / this.vel[1] )
+            speed = Math.sqrt( this.vel[0]**2 + this.vel[1]**2 )
+            newAngle = 2 * tAngle - nAngle
+            this.vel = [speed * Math.cos( newAngle ),
+                        speed * Math.sin( newAngle )]
+
+            d = [this.pos[0] + 50 * Math.cos(newAngle), this.pos[1] + 50 * Math.cos(newAngle)]
+
+            drawLine(ctx, this.pos, d, 'rgba(255, 255, 255, 1)', false, 0)
+
+        }
+
+        this.draw()
+    }
+
+    draw() {
+        drawCircle(ctx, this.pos[0], this.pos[1], this.radius, 'rgba(255, 255, 255, 1)', false, 0)
+    }
+}
+
 
 function drawCircle(ctx, x, y, radius, fill, stroke, strokeWidth) {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+    if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+    }
+    if (stroke) {
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeStyle = stroke;
+        ctx.stroke();
+    }
+}
+
+function drawLine(ctx, p1,p2, fill, stroke, strokeWidth) {
+    ctx.beginPath();
+    ctx.moveTo(p1[0],p1[1]);
+    ctx.lineTo(p2[0],p2[1]);
+    ctx.closePath();
+
     if (fill) {
         ctx.fillStyle = fill;
         ctx.fill();
