@@ -17,7 +17,7 @@ window.onload  = function () {
         console.log("Canvas is not supported!!")
     }
 
-    b = new Ball([canvas.width/2, canvas.height/2+350])
+    b = new Ball([canvas.width/2 + 100, canvas.height/2+300])
 
     setInterval(function() {
         ctx.fillStyle = "rgba(0, 0, 0, 1)";
@@ -42,11 +42,10 @@ window.onload  = function () {
         }
 
         b.update()
-        drawLine(ctx, [100,100], [200,300], 'rgba(255, 255, 255, 1)', true, 10)
-    }, 1000/6);
+    }, 1000/30);
 };
 
-let tAngle, nAngle, speed, newAngle, d
+let tAngle, nAngle, speed, newAngle, d, p, t
 class Ball{
     constructor(pos) {
         this.pos = pos
@@ -61,17 +60,25 @@ class Ball{
 
         if (Math.sqrt((canvas.width/2-this.pos[0])**2 + (canvas.height/2-this.pos[1])**2) + this.radius + circleWidth > circleRadius) {
             this.vel[1] *= -1
-            nAngle = Math.tan( (canvas.width/2-this.pos[0]) / (canvas.height/2-this.pos[1]) )
-            tAngle = Math.tan( this.vel[0] / this.vel[1] )
+            if ((canvas.width/2-this.pos[0]) != 0) {
+                nAngle = Math.atan((canvas.height / 2 - this.pos[1]) / (canvas.width / 2 - this.pos[0])) + Math.PI
+            } else {
+                nAngle = Math.PI / 2
+            }
+            tAngle = Math.atan( this.vel[1] / this.vel[0] )
             speed = Math.sqrt( this.vel[0]**2 + this.vel[1]**2 )
-            newAngle = 2 * tAngle - nAngle
+            newAngle = 2 * nAngle - tAngle
             this.vel = [speed * Math.cos( newAngle ),
                         speed * Math.sin( newAngle )]
 
-            d = [this.pos[0] + 50 * Math.cos(newAngle), this.pos[1] + 50 * Math.cos(newAngle)]
+            d = [this.pos[0] + 50 * Math.cos(newAngle), this.pos[1] + 50 * Math.sin(newAngle)]
+            p = [this.pos[0] + 50 * Math.cos(nAngle), this.pos[1] + 50 * Math.sin(nAngle)]
+            t = [this.pos[0] + 50 * Math.cos(tAngle), this.pos[1] + 50 * Math.sin(tAngle)]
 
-            drawLine(ctx, this.pos, d, 'rgba(255, 255, 255, 1)', false, 0)
-
+            drawLine(ctx, this.pos, d, 'rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 1)', 5)
+            drawLine(ctx, this.pos, p, 'rgba(255, 255, 255, 1)', 'rgba(0, 0, 255, 1)', 5)
+            drawLine(ctx, this.pos, t, 'rgba(255, 255, 255, 1)', 'rgba(255, 0, 0, 1)', 5)
+            console.log(nAngle)
         }
 
         this.draw()
