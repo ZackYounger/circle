@@ -20,12 +20,13 @@ window.onload  = function () {
     b = new Ball([canvas.width/2 + 100, canvas.height/2+300])
 
     setInterval(function() {
+    //window.addEventListener("click", function() {
         ctx.fillStyle = "rgba(0, 0, 0, 1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            //Draw Circle
+        //Draw Circle
         detail = 1000
-        for (i=0;i<=detail;i++) {
+        for (i = 0; i <= detail; i++) {
             angle = i / detail * Math.PI / 2
 
             color = HSVtoRGB(i / detail, 1, 1);
@@ -42,7 +43,8 @@ window.onload  = function () {
         }
 
         b.update()
-    }, 1000/30);
+    }, 1000/60);
+    //});
 };
 
 let tAngle, nAngle, speed, newAngle, d, p, t
@@ -65,8 +67,8 @@ class Ball{
             } else {
                 nAngle = Math.PI / 2
             }
-            tAngle = Math.atan( this.vel[1] / this.vel[0] )
             speed = Math.sqrt( this.vel[0]**2 + this.vel[1]**2 )
+            tAngle = Math.acos( this.vel[0] / speed ) + Math.PI
             newAngle = 2 * nAngle - tAngle
             this.vel = [speed * Math.cos( newAngle ),
                         speed * Math.sin( newAngle )]
