@@ -41,13 +41,20 @@ window.onload  = function () {
         drawCircle(ctx, canvas.width - point[0], point[1], circleWidth, strColor, false, 0)
     }
 
-    bound = circleRadius-5
+    bound = circleRadius-10
+
+    targetBounces = 5
 
     for (x=canvas.width/2-bound;x<canvas.width/2+bound;x++) {
         for (y=canvas.height/2-bound;y<canvas.height/2+bound;y++) {
             if ( (canvas.width/2 - x)**2 + (canvas.height/2 - y)**2 < (bound)**2) {
-                    ctx.fillStyle = "rgba(255,0,0,1)";
-                    ctx.fillRect( x, y, 1, 1 );
+                b = new Ball([x, y])
+                while (b.bounces < targetBounces) {
+                    b.update()
+                }
+                ctx.fillStyle = b.lastColor;
+                ctx.fillRect( x, y, 1, 1 );
+
             }
         }
     }
@@ -112,7 +119,7 @@ class Ball{
 
         }
 
-        this.draw()
+        //this.draw()
     }
 
     draw() {
